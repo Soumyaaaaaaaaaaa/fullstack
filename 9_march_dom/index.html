@@ -13,6 +13,8 @@
 <button id="btn">Submit Button</button>
 
 <script>
+    localStorage.setItem("name", "John Doe");
+    console.log(localStorage.getItem("name"));
 document.getElementById("btn").onclick = function() {
     document.getElementById("btn").innerText = "Please wait";
     document.body.style.backgroundColor = "black";

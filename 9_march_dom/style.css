@@ -1,0 +1,27 @@
+/* Default Light Mode */
+
+body{
+    background-color: white;
+    color: black;
+    transition: 0.3s;
+}
+
+footer{
+    background-color: #f5f5f5;
+}
+
+.container{
+    transition: 0.3s;
+}
+
+
+/* Dark Mode */
+
+.dark-mode{
+    background-color: black;
+    color: white;
+}
+
+.dark-mode footer{
+    background-color: #111;
+}

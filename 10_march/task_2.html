@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Button Counter</title>
+</head>
+
+<body>
+
+<button id="red">Red</button>
+<button id="green">Green</button>
+<button id="blue">Blue</button>
+
+<h1 id="counter">0</h1>
+
+<script>
+
+const redBtn = document.getElementById("red");
+const greenBtn = document.getElementById("green");
+const blueBtn = document.getElementById("blue");
+const counter = document.getElementById("counter");
+
+let count = 0;
+
+redBtn.addEventListener("click", function () {
+    count++;
+    counter.textContent = count;
+    document.body.style.backgroundColor = "red";
+});
+
+greenBtn.addEventListener("click", function () {
+    count++;
+    counter.textContent = count;
+    document.body.style.backgroundColor = "green";
+});
+
+blueBtn.addEventListener("click", function () {
+    count++;
+    counter.textContent = count;
+    document.body.style.backgroundColor = "blue";
+});
+
+</script>
+
+</body>
+</html>

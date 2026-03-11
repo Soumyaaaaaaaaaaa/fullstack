@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Promise Example</title>
+</head>
+
+<body>
+
+<h2>Promise Demo</h2>
+
+<button id="loadBtn">Load Data</button>
+<p id="output"></p>
+
+<script>
+
+// console.log("Start")
+
+// setTimeout(() => {
+//     console.log("Data loaded")
+// }, 2000)
+
+// console.log("End")
+
+// function processData(callback) {
+//     console.log("Processing data...")
+//     callback()
+// }
+
+// function done() {
+//     console.log("Data processed")
+// }
+
+// processData(done)
+function fetchData() {
+
+  return new Promise(function(resolve, reject) {
+
+    let success = true;
+
+    if(success){
+      resolve("Data loaded successfully");
+    }
+    else{
+      reject("Something went wrong");
+    }
+
+  });
+
+}
+
+document.getElementById("loadBtn").addEventListener("click", function(){
+
+  document.getElementById("output").innerText = "Loading...";
+
+  fetchData()
+  .then(function(result){
+    document.getElementById("output").innerText = result;
+  })
+  .catch(function(error){
+    document.getElementById("output").innerText = error;
+  });
+
+});
+
+</script>
+
+</body>
+</html>

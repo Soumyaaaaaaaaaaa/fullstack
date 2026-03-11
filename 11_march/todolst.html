@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>To Do List</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1828;
+    --accent: #ff6b35;
+    --accent2: #ffe66d;
+    --text: #fffffe;
+    --muted: #a7a9be;
+    --done: #2cb67d;
+    --radius: 14px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    overflow-x: hidden;
+  }
+
+  /* Animated background blobs */
+  body::before, body::after {
+    content: '';
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.15;
+    animation: float 8s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::before {
+    width: 400px; height: 400px;
+    background: var(--accent);
+    top: -100px; left: -100px;
+  }
+  body::after {
+    width: 300px; height: 300px;
+    background: var(--accent2);
+    bottom: -80px; right: -80px;
+    animation-delay: -4s;
+  }
+
+  @keyframes float {
+    from { transform: translate(0, 0) scale(1); }
+    to   { transform: translate(40px, 30px) scale(1.1); }
+  }
+
+  .container {
+    width: 100%;
+    max-width: 520px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    margin-bottom: 2rem;
+    animation: slideDown 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 6vw, 3rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  h2 span {
+    color: var(--accent2);
+  }
+
+  .input-row {
+    display: flex;
+    gap: 0.6rem;
+    margin-bottom: 1.8rem;
+    animation: slideDown 0.6s 0.15s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  #taskInput {
+    flex: 1;
+    background: var(--surface);
+    border: 2px solid transparent;
+    border-radius: var(--radius);
+    padding: 0.85rem 1.1rem;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+  }
+
+  #taskInput::placeholder { color: var(--muted); }
+
+  #taskInput:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.15);
+    background: #201e30;
+  }
+
+  #addBtn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 0.85rem 1.4rem;
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s, background 0.2s, box-shadow 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  #addBtn:hover {
+    background: #ff855a;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255,107,53,0.35);
+  }
+
+  #addBtn:active {
+    transform: translateY(1px) scale(0.97);
+    box-shadow: none;
+  }
+
+  /* Shake animation for empty input */
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%       { transform: translateX(-8px); }
+    40%       { transform: translateX(8px); }
+    60%       { transform: translateX(-5px); }
+    80%       { transform: translateX(5px); }
+  }
+  .shake { animation: shake 0.4s ease; }
+
+  /* Stats bar */
+  .stats {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-weight: 500;
+    animation: slideDown 0.6s 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    transition: all 0.3s;
+  }
+  .stats span { color: var(--text); font-weight: 700; }
+
+  /* Task list */
+  #taskList {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  /* Task item enter */
+  @keyframes itemIn {
+    from { opacity: 0; transform: translateX(-24px) scale(0.96); }
+    to   { opacity: 1; transform: translateX(0) scale(1); }
+  }
+
+  /* Task item exit */
+  @keyframes itemOut {
+    from { opacity: 1; transform: scale(1); max-height: 80px; margin-bottom: 0; }
+    to   { opacity: 0; transform: scale(0.9) translateX(30px); max-height: 0; margin-bottom: -0.6rem; }
+  }
+
+  li {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 0.9rem 1rem 0.9rem 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    border: 1.5px solid rgba(255,255,255,0.05);
+    animation: itemIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+    cursor: default;
+    overflow: hidden;
+  }
+
+  li:hover {
+    background: #201e30;
+    border-color: rgba(255,255,255,0.1);
+    transform: translateX(4px);
+  }
+
+  li.removing {
+    animation: itemOut 0.35s ease forwards;
+    pointer-events: none;
+  }
+
+  li.completed .task-text {
+    text-decoration: line-through;
+    color: var(--muted);
+  }
+
+  li.completed {
+    border-color: rgba(44, 182, 125, 0.25);
+  }
+
+  /* Checkbox */
+  .check-btn {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--muted);
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.2s, background 0.2s, transform 0.2s;
+    color: transparent;
+    font-size: 0.7rem;
+  }
+
+  .check-btn:hover { border-color: var(--done); transform: scale(1.15); }
+
+  li.completed .check-btn {
+    background: var(--done);
+    border-color: var(--done);
+    color: #fff;
+    animation: pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes pop {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.35); }
+    100% { transform: scale(1); }
+  }
+
+  .task-text {
+    flex: 1;
+    font-size: 0.98rem;
+    transition: color 0.3s, text-decoration 0.3s;
+    word-break: break-word;
+  }
+
+  .deleteBtn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.2rem 0.35rem;
+    border-radius: 6px;
+    flex-shrink: 0;
+    transition: color 0.2s, background 0.2s, transform 0.2s;
+    line-height: 1;
+  }
+
+  .deleteBtn:hover {
+    color: #ff4d6d;
+    background: rgba(255,77,109,0.12);
+    transform: scale(1.2) rotate(10deg);
+  }
+
+  /* Empty state */
+  .empty {
+    text-align: center;
+    padding: 3rem 0 1rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+    animation: fadeIn 0.5s ease;
+  }
+  .empty .emoji { font-size: 2.5rem; display: block; margin-bottom: 0.5rem; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Confetti burst on complete */
+  @keyframes confettiFly {
+    0%   { transform: translate(0,0) rotate(0deg); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) rotate(720deg); opacity: 0; }
+  }
+
+  .confetti-piece {
+    position: fixed;
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    pointer-events: none;
+    animation: confettiFly 0.7s ease-out forwards;
+    z-index: 999;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <p class="eyebrow">✦ Stay on track</p>
+    <h2>My To Do <span>List</span></h2>
+  </header>
+
+  <div class="input-row">
+    <input type="text" id="taskInput" placeholder="What needs to get done?">
+    <button id="addBtn" title="Add task">+</button>
+  </div>
+
+  <div class="stats" id="stats" style="display:none">
+    <span id="totalCount">0</span> tasks &nbsp;·&nbsp;
+    <span id="doneCount">0</span> completed
+  </div>
+
+  <ul id="taskList"></ul>
+  <div class="empty" id="emptyState">
+    <span class="emoji">🗒️</span>
+    No tasks yet — add one above!
+  </div>
+</div>
+
+<script>
+  const input   = document.querySelector("#taskInput");
+  const button  = document.querySelector("#addBtn");
+  const list    = document.querySelector("#taskList");
+  const empty   = document.querySelector("#emptyState");
+  const stats   = document.querySelector("#stats");
+  const totalEl = document.querySelector("#totalCount");
+  const doneEl  = document.querySelector("#doneCount");
+
+  function updateStats() {
+    const total = list.children.length;
+    const done  = list.querySelectorAll(".completed").length;
+    if (total === 0) {
+      stats.style.display = "none";
+      empty.style.display = "block";
+    } else {
+      stats.style.display = "flex";
+      empty.style.display = "none";
+      totalEl.textContent = total;
+      doneEl.textContent  = done;
+    }
+  }
+
+  function spawnConfetti(x, y) {
+    const colors = ["#ff6b35","#ffe66d","#2cb67d","#a855f7","#38bdf8"];
+    for (let i = 0; i < 10; i++) {
+      const el = document.createElement("div");
+      el.classList.add("confetti-piece");
+      el.style.left = x + "px";
+      el.style.top  = y + "px";
+      el.style.background = colors[Math.floor(Math.random() * colors.length)];
+      el.style.setProperty("--tx", (Math.random() * 120 - 60) + "px");
+      el.style.setProperty("--ty", (Math.random() * -80 - 20) + "px");
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 750);
+    }
+  }
+
+  function addTask(text) {
+    const li = document.createElement("li");
+
+    const checkBtn = document.createElement("button");
+    checkBtn.className = "check-btn";
+    checkBtn.title = "Mark complete";
+    checkBtn.textContent = "✓";
+
+    const span = document.createElement("span");
+    span.className = "task-text";
+    span.textContent = text;
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "deleteBtn";
+    deleteBtn.title = "Delete";
+    deleteBtn.innerHTML = "✕";
+
+    checkBtn.addEventListener("click", function(e) {
+      const wasCompleted = li.classList.contains("completed");
+      li.classList.toggle("completed");
+      if (!wasCompleted) spawnConfetti(e.clientX, e.clientY);
+      updateStats();
+    });
+
+    deleteBtn.addEventListener("click", function() {
+      li.classList.add("removing");
+      li.addEventListener("animationend", () => {
+        li.remove();
+        updateStats();
+      }, { once: true });
+    });
+
+    li.appendChild(checkBtn);
+    li.appendChild(span);
+    li.appendChild(deleteBtn);
+    list.appendChild(li);
+    updateStats();
+  }
+
+  button.addEventListener("click", function() {
+    const task = input.value.trim();
+    if (task === "") {
+      input.classList.remove("shake");
+      void input.offsetWidth; // reflow to restart animation
+      input.classList.add("shake");
+      input.addEventListener("animationend", () => input.classList.remove("shake"), { once: true });
+      return;
+    }
+    addTask(task);
+    input.value = "";
+    input.focus();
+  });
+
+  input.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") button.click();
+  });
+
+  updateStats();
+</script>
+</body>
+</html>

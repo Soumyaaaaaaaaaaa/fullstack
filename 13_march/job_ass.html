@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Job Hunt Automation Agent</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- External Stylesheet -->
+  <link rel="stylesheet" href="job_ass.css" />
+</head>
+<body>
+
+  <canvas id="bg-canvas"></canvas>
+  <div class="bg-mesh"></div>
+
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loader-ring"></div>
+    <div>
+      <div class="loader-text">AI Agent Initializing…</div>
+      <div class="loader-sub">Spinning up job hunt modules</div>
+    </div>
+    <div class="loader-steps" id="loaderSteps">
+      <div class="loader-step" id="step1"><span class="step-icon">🔍</span> Parsing job role &amp; companies</div>
+      <div class="loader-step" id="step2"><span class="step-icon">📄</span> Scanning uploaded resume</div>
+      <div class="loader-step" id="step3"><span class="step-icon">🤖</span> Generating outreach messages</div>
+      <div class="loader-step" id="step4"><span class="step-icon">📬</span> Queuing applications</div>
+      <div class="loader-step" id="step5"><span class="step-icon">✅</span> Agent ready</div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       NOTIFICATION CONTAINER
+  ============================================================ -->
+  <div class="notif-container" id="notifContainer"></div>
+  <div class="shell">
+    <nav>
+      <div class="nav-logo">
+        <div class="logo-icon">🤖</div>
+        JobAgent <span class="nav-badge">v2.1</span>
+      </div>
+      <div class="nav-actions">
+        <div class="nav-dot"></div>
+        <span class="nav-status">Agent Online</span>
+      </div>
+    </nav>
+
+    <!-- HERO HEADER -->
+    <section class="hero">
+      <div class="hero-tag">
+        <span class="hero-tag-dot"></span>
+        Powered by Intelligent Automation
+      </div>
+      <h1>
+        <span class="grad-text">AI Job Hunt</span><br/>
+        Automation Agent
+      </h1>
+      <p>Let the machine do the heavy lifting. Our AI agent identifies opportunities, crafts personalized outreach, tracks applications, and follows up — all on autopilot.</p>
+    </section>
+
+    <!-- JOB INPUT SECTION -->
+    <section class="input-section">
+      <div class="section-label">Configure Agent</div>
+      <div class="section-title">Set Your Job Hunt Parameters</div>
+      <div class="section-sub">Define your target role and companies. The AI handles the rest.</div>
+
+      <div class="glass" style="padding:28px;">
+        <div class="input-grid">
+
+          <div class="input-wrap">
+            <label>Job Role</label>
+            <input type="text" id="jobRole" placeholder="e.g. Senior Frontend Engineer" />
+            <span class="input-icon">💼</span>
+          </div>
+
+          <div class="input-wrap">
+            <label>Target Companies</label>
+            <input type="text" id="companies" placeholder="e.g. Google, Stripe, Vercel" />
+            <span class="input-icon">🏢</span>
+          </div>
+
+        </div>
+
+        <div class="action-row">
+          <label class="btn btn-ghost upload-btn">
+            <span class="btn-icon">📎</span>
+            <span class="btn-label" id="uploadLabel">Upload Resume</span>
+            <span class="upload-indicator" id="uploadIndicator"></span>
+            <input type="file" accept=".pdf,.doc,.docx" id="resumeInput" />
+          </label>
+          <button class="btn btn-primary" id="startBtn" onclick="startAgent()">
+            <div class="btn-spinner"></div>
+            <span class="btn-icon">⚡</span>
+            <span class="btn-label">Start AI Agent</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RECRUITER OUTREACH SECTION -->
+    <section class="outreach-section">
+      <div class="section-label">Outreach Engine</div>
+      <div class="section-title">Generated Recruiter Message</div>
+      <div class="section-sub">AI-crafted, personalized cold outreach for every target.</div>
+
+      <div class="glass outreach-card">
+        <div class="outreach-header">
+          <div class="outreach-title">
+            <span>✉️</span> LinkedIn / Email Template
+          </div>
+          <button class="btn btn-ghost" id="copyBtn" onclick="copyMessage()" style="padding:8px 16px;font-size:0.78rem;">
+            <span>📋</span> Copy
+          </button>
+        </div>
+        <div class="outreach-body" id="outreachBody">
+          <span class="placeholder-msg">Start the AI agent above to generate a personalized outreach message…</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- APPLICATION TRACKING — STATS CARDS -->
+    <section class="stats-section">
+      <div class="section-label">Live Dashboard</div>
+      <div class="section-title">Application Tracking</div>
+      <div class="section-sub">Real-time metrics from your active job hunt campaign.</div>
+
+      <div class="stats-grid">
+
+        <!-- Total Applications -->
+        <div class="glass stat-card tilt"
+             style="--c1:#3b82f6;--c2:#22d3ee;--glow:rgba(59,130,246,0.3)">
+          <span class="stat-icon">📨</span>
+          <span class="stat-change up">+12%</span>
+          <div class="stat-num" data-target="147" id="ctr-apps">0</div>
+          <div class="stat-label">Total Applications</div>
+          <div class="stat-bar">
+            <div class="stat-bar-fill" data-width="82"
+                 style="background:linear-gradient(90deg,var(--blue),var(--cyan))"></div>
+          </div>
+        </div>
+
+        <!-- Interviews -->
+        <div class="glass stat-card tilt"
+             style="--c1:#8b5cf6;--c2:#f472b6;--glow:rgba(139,92,246,0.3)">
+          <span class="stat-icon">🎤</span>
+          <span class="stat-change up">+8%</span>
+          <div class="stat-num" data-target="23" id="ctr-int">0</div>
+          <div class="stat-label">Interviews Secured</div>
+          <div class="stat-bar">
+            <div class="stat-bar-fill" data-width="45"
+                 style="background:linear-gradient(90deg,var(--violet),var(--pink))"></div>
+          </div>
+        </div>
+
+        <!-- Pending -->
+        <div class="glass stat-card tilt"
+             style="--c1:#fbbf24;--c2:#f97316;--glow:rgba(251,191,36,0.3)">
+          <span class="stat-icon">⏳</span>
+          <span class="stat-change up">+3%</span>
+          <div class="stat-num" data-target="58" id="ctr-pend">0</div>
+          <div class="stat-label">Pending Responses</div>
+          <div class="stat-bar">
+            <div class="stat-bar-fill" data-width="62"
+                 style="background:linear-gradient(90deg,#fbbf24,#f97316)"></div>
+          </div>
+        </div>
+
+        <!-- Referrals -->
+        <div class="glass stat-card tilt"
+             style="--c1:#34d399;--c2:#3b82f6;--glow:rgba(52,211,153,0.3)">
+          <span class="stat-icon">🔗</span>
+          <span class="stat-change up">+19%</span>
+          <div class="stat-num" data-target="91" id="ctr-ref">0</div>
+          <div class="stat-label">Referrals Sent</div>
+          <div class="stat-bar">
+            <div class="stat-bar-fill" data-width="70"
+                 style="background:linear-gradient(90deg,var(--green),var(--blue))"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ACTIVITY TIMELINE + CHART -->
+    <div class="two-col">
+
+      <!-- TIMELINE -->
+      <div class="glass panel">
+        <div class="section-label">Recent Activity</div>
+        <div class="section-title" style="font-size:1.1rem;margin-bottom:20px;">Activity Timeline</div>
+        <ul class="timeline" id="timeline">
+
+          <li class="tl-item" style="transition-delay:0.1s">
+            <div class="tl-dot" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.4);color:var(--blue)">📬</div>
+            <div class="tl-content">
+              <div class="tl-title">Outreach sent to Google</div>
+              <div class="tl-meta">2 min ago · Recruiter: Sarah K.</div>
+            </div>
+          </li>
+
+          <li class="tl-item" style="transition-delay:0.2s">
+            <div class="tl-dot" style="background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.4);color:var(--violet)">📝</div>
+            <div class="tl-content">
+              <div class="tl-title">Application submitted — Stripe</div>
+              <div class="tl-meta">14 min ago · Sr. Frontend Engineer</div>
+            </div>
+          </li>
+
+          <li class="tl-item" style="transition-delay:0.3s">
+            <div class="tl-dot" style="background:rgba(34,211,238,0.15);border:1px solid rgba(34,211,238,0.4);color:var(--cyan)">🎤</div>
+            <div class="tl-content">
+              <div class="tl-title">Interview scheduled — Vercel</div>
+              <div class="tl-meta">1 hr ago · Thursday, 10:00 AM</div>
+            </div>
+          </li>
+
+          <li class="tl-item" style="transition-delay:0.4s">
+            <div class="tl-dot" style="background:rgba(52,211,153,0.15);border:1px solid rgba(52,211,153,0.4);color:var(--green)">🔗</div>
+            <div class="tl-content">
+              <div class="tl-title">Referral request — Linear</div>
+              <div class="tl-meta">3 hr ago · Via LinkedIn connection</div>
+            </div>
+          </li>
+
+          <li class="tl-item" style="transition-delay:0.5s">
+            <div class="tl-dot" style="background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.4);color:var(--amber)">⚡</div>
+            <div class="tl-content">
+              <div class="tl-title">Follow-up sent — Figma</div>
+              <div class="tl-meta">Yesterday · Auto follow-up #2</div>
+            </div>
+          </li>
+
+        </ul>
+      </div>
+
+      <!-- BAR CHART -->
+      <div class="glass panel">
+        <div class="section-label">Analytics</div>
+        <div class="section-title" style="font-size:1.1rem;margin-bottom:20px;">Weekly Progress</div>
+        <div class="chart-wrap">
+          <div class="bar-chart" id="barChart"></div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Applications</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--violet)"></div>Outreach</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Replies</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <section class="progress-section">
+      <div class="section-label">Job Funnel</div>
+      <div class="section-title">Application Pipeline Health</div>
+      <div class="section-sub">Track conversion at each stage of your job hunt funnel.</div>
+
+      <div class="glass" style="padding:28px 32px;">
+
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-name">✉️ Outreach Sent</span>
+            <span class="progress-pct">91%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" data-width="91"
+                 style="background:linear-gradient(90deg,var(--blue),var(--cyan))"></div>
+          </div>
+        </div>
+
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-name">📝 Applications Submitted</span>
+            <span class="progress-pct">74%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" data-width="74"
+                 style="background:linear-gradient(90deg,var(--violet),var(--pink))"></div>
+          </div>
+        </div>
+
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-name">💬 Recruiter Responses</span>
+            <span class="progress-pct">42%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" data-width="42"
+                 style="background:linear-gradient(90deg,var(--amber),#f97316)"></div>
+          </div>
+        </div>
+
+        <div class="progress-item" style="margin-bottom:0">
+          <div class="progress-header">
+            <span class="progress-name">🎤 Interview Conversion</span>
+            <span class="progress-pct">23%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" data-width="23"
+                 style="background:linear-gradient(90deg,var(--green),var(--blue))"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span>JobAgent v2.1</span> · Built with AI Automation · &copy; 2025 All rights reserved
+    </footer>
+
+  </div>
+  <script src="job_ass.js"></script>
+
+</body>
+</html>

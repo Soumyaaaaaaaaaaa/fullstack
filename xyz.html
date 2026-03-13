@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gemini AI Test</title>
+</head>
+<body>
+
+<h2>Ask AI</h2>
+
+<input type="text" id="prompt" placeholder="Ask something">
+<button onclick="askAI()">Ask</button>
+
+<p id="result"></p>
+
+<script>
+
+async function askAI(){
+
+    const userInput = document.getElementById("prompt").value
+
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization":
+        },
+        body: JSON.stringify({
+            model: "gpt-4o-mini",
+            messages: [
+                { role: "user", content: userInput }
+            ]
+        })
+    })
+
+    const data = await response.json()
+
+    document.getElementById("result").innerText = data.choices[0].message.content
+}
+
+</script>
+
+</body>
+</html>
